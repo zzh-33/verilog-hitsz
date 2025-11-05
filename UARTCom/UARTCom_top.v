@@ -10,7 +10,7 @@ module UARTCom_top(
     wire finish_bit ;
 
     ctrled_clk_counter #(
-        .CNT_MAX(100000)
+        .CNT_MAX(100000),
         .INIT(1)
     ) u_ctrled_clk_counter_bit(
         .clk(clk),
@@ -21,7 +21,7 @@ module UARTCom_top(
     );
 
     ctrled_clk_counter_str #(
-        .CNT_MAX(100000)
+        .CNT_MAX(100000),
         .INIT(0)
     ) u_ctrled_clk_counter_str(
         .clk(clk),

@@ -6,8 +6,7 @@ module ctrled_clk_counter_str #(
     input clk,
     input rst,
     input start,
-    input finish,
-    output reg update
+    input finish
 );
 
     reg [24:0] count;

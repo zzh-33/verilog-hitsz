@@ -39,22 +39,22 @@ module uart_send(
         if(rst) out <= 2'b00;
         else begin
             case(current_state)
-                IDLE:   out <= 1;
-                START:  out <= 0;
+                IDLE:   dout <= 1;
+                START:  dout <= 0;
                 DATA:
                     case (data_cnt)
-                        3'b000: out <= data[0];
-                        3'b001: out <= data[1];
-                        3'b010: out <= data[2];
-                        3'b011: out <= data[3];
-                        3'b100: out <= data[4];
-                        3'b101: out <= data[5];
-                        3'b110: out <= data[6];
-                        3'b111: out <= data[7];
-                        default: out <= 2'b00;
+                        3'b000: dout <= data[0];
+                        3'b001: dout <= data[1];
+                        3'b010: dout <= data[2];
+                        3'b011: dout <= data[3];
+                        3'b100: dout <= data[4];
+                        3'b101: dout <= data[5];
+                        3'b110: dout <= data[6];
+                        3'b111: dout <= data[7];
+                        default: dout <= 2'b00;
                     endcase
-                STOP:   out <= 1;
-                default : out <=2'b00;
+                STOP:   dout <= 1;
+                default : dout <=2'b00;
             endcase
         end
     end
