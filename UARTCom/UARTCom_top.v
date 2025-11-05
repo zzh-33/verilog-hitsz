@@ -21,7 +21,7 @@ module UARTCom_top(
     );
 
     ctrled_clk_counter_str #(
-        .CNT_MAX(100000),
+        .CNT_MAX(20000000),
         .INIT(0)
     ) u_ctrled_clk_counter_str(
         .clk(clk),
