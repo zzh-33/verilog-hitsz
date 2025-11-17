@@ -24,18 +24,6 @@ module strMatch (
     reg [3:0] currentState;
     reg [3:0] nextState;
 
-    reg [7:0] valid_data;
-
-    always @(posedge clk or posedge rst) begin
-        if(rst) begin
-            valid_data <= 8'h00;
-        end else if(valid) begin
-            valid_data <= data_in;
-        end else begin
-            valid_data <= valid_data;
-        end
-    end
-
     always @(posedge clk or posedge rst) begin
         if(rst) begin
             currentState <= NULL;
@@ -46,46 +34,76 @@ module strMatch (
 
     always @(*) begin
         case (currentState)
-            NULL: if(valid_data == 8'h53) nextState = S;
-                  else if (valid_data == 8'h48) nextState = H;
-                  else  nextState = NULL;
-            S: if(valid_data == 8'h54) nextState = ST;
-               else  nextState = NULL;
-            ST: if(valid_data == 8'h41) nextState = STA;
-                else if (valid_data == 8'h4f) nextState = STO;
-                else nextState = NULL;
-            STA: if(valid_data == 8'h52) nextState = STAR;
-                 else nextState = NULL;
-            STO: if (valid_data == 8'h50) nextState = STOP;
-                 else nextState = NULL;
-            STAR: if (valid_data == 8'h54) nextState = START;
-                  else nextState = NULL;
-            START: if(valid_data == 8'h53) nextState = S;
-                   else if (valid_data == 8'h48) nextState = H;
-                   else  nextState = NULL;
-            STOP: if(valid_data == 8'h53) nextState = S;
-                  else if (valid_data == 8'h48) nextState = H;
-                  else  nextState = NULL;
-            H: if (valid_data == 8'h49) nextState = HI;
-               else nextState = NULL;
-            HI: if (valid_data == 8'h54) nextState = HIT;
-                else nextState = NULL;
-            HIT: if (valid_data == 8'h53) nextState = HITS;
-                 else nextState = NULL;
-            HITS: if (valid_data == 8'h5a) nextState = HITSZ;
-                  else nextState = NULL;
-            HITSZ: if (valid_data == 8'h53) nextState = S;
-                   else if (valid_data == 8'h48) nextState = H;
-                   else nextState = NULL;
-            default: nextState = NULL;
+            NULL:   if (valid) begin
+                        if(data_in == 8'h73) nextState = S;
+                        else if (data_in == 8'h68) nextState = H;
+                        else nextState = NULL;
+                    end else nextState = currentState;
+            S:      if (valid) begin
+                        if(data_in == 8'h74) nextState = ST;
+                        else  nextState = NULL;
+                    end else nextState = currentState;
+            ST:     if (valid) begin
+                        if(data_in == 8'h61) nextState = STA;
+                        else if (data_in == 8'h6f) nextState = STO;
+                        else nextState = NULL;
+                    end else nextState = currentState;
+            STA:    if (valid) begin
+                        if(data_in == 8'h72) nextState = STAR;
+                        else nextState = NULL;
+                    end else nextState = currentState;
+            STO:    if (valid) begin
+                        if (data_in == 8'h70) nextState = STOP;
+                        else nextState = NULL;
+                    end else nextState = currentState;
+            STAR:   if (valid) begin
+                        if (data_in == 8'h74) nextState = START;
+                        else nextState = NULL;
+                    end else nextState = currentState;
+            START:  if (valid) begin
+                        if(data_in == 8'h73) nextState = S;
+                        else if (data_in == 8'h68) nextState = H;
+                        else  nextState = NULL;
+                    end else nextState = currentState;
+            STOP:   if (valid) begin
+                        if(data_in == 8'h73) nextState = S;
+                        else if (data_in == 8'h68) nextState = H;
+                        else  nextState = NULL;
+                    end else nextState = currentState;
+            H:      if (valid) begin
+                        if (data_in == 8'h69) nextState = HI;
+                        else nextState = NULL;
+                    end else nextState = currentState;
+            HI:     if (valid) begin
+                        if (data_in == 8'h74) nextState = HIT;
+                        else nextState = NULL;
+                    end else nextState = currentState;
+            HIT:    if (valid) begin
+                        if (data_in == 8'h73) nextState = HITS;
+                        else nextState = NULL;
+                    end else nextState = currentState;
+            HITS:   if (valid) begin
+                        if (data_in == 8'h7a) nextState = HITSZ;
+                        else nextState = NULL;                       
+                    end else nextState = currentState;
+            HITSZ: if (valid) begin
+                        if (data_in == 8'h73) nextState = S;
+                        else if (data_in == 8'h68) nextState = H;
+                        else nextState = NULL;
+                    end else nextState = currentState;
+            default: nextState = currentState;
         endcase
     end
 
     always @(posedge clk or posedge rst) begin
         if(rst) begin
             match <= 0;
-        end else if ((currentState == HITSZ || currentState == START || currentState == STOP || currentState == NULL) && valid) begin
-            match <= 1;
+        end else if (valid) begin
+            if (currentState == HITSZ || currentState == STOP || currentState == START || currentState == NULL) begin
+                match <= 1;
+            end else begin
+                match <= 0;
+            end 
         end else begin
             match <= 0;
         end
@@ -95,7 +113,7 @@ module strMatch (
         if(rst) begin
             matchResult <= 8'h30;
         end else begin
-            case (currentState)
+            case (nextState)
                 START: matchResult <= 8'h31;
                 STOP: matchResult <= 8'h32;
                 HITSZ: matchResult <= 8'h33;

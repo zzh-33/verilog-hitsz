@@ -38,26 +38,22 @@ module uart_recv(
     always @(posedge clk or posedge rst) begin
         if(rst) begin
             current_state <= IDLE;
-        end else if (current_state == IDLE) begin
-            current_state <= next_state;
-        end else if (current_state == START && baud_cnt >= baud_cnt_max_half) begin
-            current_state <= next_state;
-        end else if (baud_cnt >= baud_cnt_max) begin
-            current_state <= next_state;
         end else begin
-            current_state <= current_state;
+            current_state <= next_state;
         end
     end
 
     always @(*) begin
         case (current_state)
-            IDLE: if(baud_cnt_inc) next_state = START;
-                  else      next_state = IDLE;
-            START: next_state = DATA;
-            DATA:  if (data_cnt == 3'b111) next_state = STOP;
-                   else next_state = DATA;
-            STOP:  next_state = IDLE;
-            default: next_state = IDLE;
+            IDLE:   if(baud_cnt_inc) next_state = START;
+                    else next_state = current_state;
+            START:  if (baud_cnt >=baud_cnt_max_half) next_state = DATA;
+                    else next_state = current_state;
+            DATA:   if (baud_cnt >= baud_cnt_max && data_cnt == 3'b111) next_state = STOP;
+                    else next_state = current_state;
+            STOP:   if (baud_cnt >= baud_cnt_max) next_state = IDLE;
+                    else next_state = current_state;
+            default: next_state = current_state;
         endcase
     end
 

@@ -52,21 +52,21 @@ module uart_send(
     // 第1个always块，描述次态迁移到现态
     always @(posedge clk or posedge rst) begin
         if(rst)  current_state <= IDLE;
-        else if (current_state == IDLE) current_state <= next_state;
-        else if (baud_cnt >= baud_cnt_max) current_state <= next_state;
-        else current_state <= current_state;
+        else current_state <= next_state;
     end
 
     // 第2个always块，描述状态转移条件判断
     always @(*) begin
         case (current_state)
-            IDLE: if(baud_cnt_inc) next_state = START;
-                  else      next_state = IDLE;
-            START: next_state = DATA;
-            DATA:  if (data_cnt == 3'b111) next_state = STOP;
-                   else next_state = DATA;
-            STOP:  next_state = IDLE;
-            default: next_state = IDLE;
+            IDLE:   if(baud_cnt_inc) next_state = START;
+                    else next_state = current_state;
+            START:  if (baud_cnt >= baud_cnt_max) next_state = DATA;
+                    else next_state = current_state;
+            DATA:   if (baud_cnt >= baud_cnt_max && data_cnt == 3'b111) next_state = STOP;
+                    else next_state = current_state;
+            STOP:   if (baud_cnt >= baud_cnt_max) next_state = IDLE;
+                    else next_state = current_state;
+            default: next_state = current_state;
         endcase
     end
 
