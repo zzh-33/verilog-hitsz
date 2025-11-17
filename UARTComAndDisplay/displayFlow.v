@@ -3,9 +3,10 @@ module displayFlow (
     input rst,
     input valid,
     input [7:0] data_in,
-    output reg [7:0] display_reg,
     output reg [47:0] display_flow
 );
+
+    reg [7:0] display_reg;
 
     always @(*) begin
         case (data_in)

@@ -6,7 +6,6 @@ module num_counter #(
     input clk,
     input rst,
     input flag,
-    input [7:0] display_reg,
     output reg [15:0] display
 );
 
@@ -18,7 +17,7 @@ module num_counter #(
             num_0 <= 0;
         end else if (num_0 >= MAX_0 && flag) begin
             num_0 <= 0;
-        end else if (flag && display_reg[7:0] != 8'b11111111) begin
+        end else if (flag) begin
             num_0 <= num_0 + 1;
         end else begin
             num_0 <= num_0;
@@ -30,7 +29,7 @@ module num_counter #(
             num_1 <= 0;
         end else if (num_1 >=MAX_1 && num_0 >= MAX_0 && flag) begin
             num_1 <= 0;
-        end else if (num_0 >= MAX_0 && flag && display_reg[7:0] != 8'b11111111) begin
+        end else if (num_0 >= MAX_0 && flag) begin
             num_1 <= num_1 + 1;
         end else begin
             num_1 <= num_1;

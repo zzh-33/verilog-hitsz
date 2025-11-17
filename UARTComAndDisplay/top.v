@@ -18,10 +18,12 @@ module top (
     wire send_finish;
 
     wire [15:0] display_cnt;
-    wire [7:0] display_reg;
     wire [47:0] display_flow;
 
     wire [63:0] display = {display_cnt, display_flow};
+
+    wire match;
+    wire [7:0] matchResult;
 
     btn_stable u_btn_stable(
         .clk(clk),
@@ -31,7 +33,7 @@ module top (
     );
 
     ctrled_clk_counter #(
-        .CNT_MAX(104260),
+        .CNT_MAX(104260)
     ) u_ctrled_clk_counter(
         .clk(clk),
         .rst(rst),
@@ -48,14 +50,6 @@ module top (
         .data(data_out)
     );
 
-    uart_send u_uart_send(
-        .clk(clk),
-        .rst(rst),
-        .valid(valid_out),
-        .data(data_out),
-        .dout(dout)
-    );
-
     uart_recv u_uart_recv(
         .clk(clk),
         .rst(rst),
@@ -64,13 +58,31 @@ module top (
         .data(data_in)
     );
 
+    strMatch u_strMatch(
+        .clk(clk),
+        .rst(rst),
+        .valid(valid_in),
+        .data_in(data_in),
+        .match(match),
+        .matchResult(matchResult)
+    );
+
+    uart_send u_uart_send(
+        .clk(clk),
+        .rst(rst),
+        .valid(valid_out),
+        .match(match),
+        .matchResult(matchResult),
+        .data(data_out),
+        .dout(dout)
+    );
+
     displayFlow u_displayFlow(
         .clk(clk),
         .rst(rst),
         .valid(valid_in),
         .data_in(data_in),
         .display_flow(display_flow)
-        .display_reg(display_reg)
     );
 
     num_counter #(
@@ -80,7 +92,6 @@ module top (
         .clk(clk),
         .rst(rst),
         .flag(valid_in),
-        .display_reg(display_reg),
         .display(display_cnt)
     );
 

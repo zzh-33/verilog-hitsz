@@ -2,7 +2,9 @@ module uart_send(
     input        clk,        
     input        rst,        
     input        valid,       // 为1表明接下来的8位data有效，只维持一个时钟周期
+    input        match,       
     input [7:0]  data,        // 待发送的8位数据
+    input [7:0]  matchResult,
     output reg   dout         // 发送信号
 );
 
@@ -13,6 +15,8 @@ module uart_send(
             valid_data <= 8'h00;
         end else if(valid) begin
             valid_data <= data;
+        end else if (match) begin
+            valid_data <= matchResult;
         end else begin
             valid_data <= valid_data;
         end
@@ -36,7 +40,7 @@ module uart_send(
     always @(posedge clk or posedge rst) begin
         if(rst) begin
             baud_cnt_inc <= 0;
-        end else if(valid) begin
+        end else if(valid || match) begin
             baud_cnt_inc <= 1;
         end else if(current_state == STOP && baud_cnt >= baud_cnt_max) begin
             baud_cnt_inc <= 0;
