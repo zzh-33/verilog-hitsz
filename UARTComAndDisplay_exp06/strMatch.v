@@ -28,7 +28,7 @@ module strMatch (
     reg isMatched;
     reg cnt_inc;
     reg [17:0] cnt;
-    wire [17:0] cnt_max = 104160;
+    wire [17:0] cnt_max = 104260;
 
     always @(posedge clk or posedge rst) begin
         if(rst) begin
@@ -48,33 +48,43 @@ module strMatch (
                     
             S:      if (valid) begin
                         if(data_in == 8'h74) nextState = ST;
+                        else if(data_in == 8'h73) nextState = S;
+                        else if (data_in == 8'h68) nextState = H;
                         else  nextState = NULL;
-                    end else if (cnt == cnt_max) nextState = NULL;
+                    end else if (cnt > cnt_max) nextState = NULL;
                         else nextState = currentState;
                         
             ST:     if (valid) begin
                         if(data_in == 8'h61) nextState = STA;
                         else if (data_in == 8'h6f) nextState = STO;
+                        else if (data_in == 8'h73) nextState = S;
+                        else if (data_in == 8'h68) nextState = H;
                         else nextState = NULL;
-                    end else if (cnt == cnt_max) nextState = NULL;
+                    end else if (cnt > cnt_max) nextState = NULL;
                         else nextState = currentState;
                         
             STA:    if (valid) begin
                         if(data_in == 8'h72) nextState = STAR;
+                        else if (data_in == 8'h73) nextState = S;
+                        else if (data_in == 8'h68) nextState = H;
                         else nextState = NULL;
-                    end else if (cnt == cnt_max) nextState = NULL;
+                    end else if (cnt > cnt_max) nextState = NULL;
                         else nextState = currentState;
                         
             STO:    if (valid) begin
                         if (data_in == 8'h70) nextState = STOP;
+                        else if (data_in == 8'h73) nextState = S;
+                        else if (data_in == 8'h68) nextState = H;
                         else nextState = NULL;
-                    end else if (cnt == cnt_max) nextState = NULL;
+                    end else if (cnt > cnt_max) nextState = NULL;
                         else nextState = currentState;
                         
             STAR:   if (valid) begin
                         if (data_in == 8'h74) nextState = START;
+                        else if (data_in == 8'h73) nextState = S;
+                        else if (data_in == 8'h68) nextState = H;
                         else nextState = NULL;
-                    end else if (cnt == cnt_max) nextState = NULL;
+                    end else if (cnt > cnt_max) nextState = NULL;
                         else nextState = currentState;
                         
             START:  if (valid) begin
@@ -91,26 +101,35 @@ module strMatch (
                     
             H:      if (valid) begin
                         if (data_in == 8'h69) nextState = HI;
+                        else if (data_in == 8'h73) nextState = S;
+                        else if (data_in == 8'h68) nextState = H;
                         else nextState = NULL;
-                    end else if (cnt == cnt_max) nextState = NULL;
+                    end else if (cnt > cnt_max) nextState = NULL;
                         else nextState = currentState;
                         
             HI:     if (valid) begin
                         if (data_in == 8'h74) nextState = HIT;
+                        else if (data_in == 8'h73) nextState = S;
+                        else if (data_in == 8'h68) nextState = H;
                         else nextState = NULL;
-                    end else if (cnt == cnt_max) nextState = NULL;
+                    end else if (cnt > cnt_max) nextState = NULL;
                         else nextState = currentState;
                         
             HIT:    if (valid) begin
                         if (data_in == 8'h73) nextState = HITS;
+                        else if (data_in == 8'h73) nextState = S;
+                        else if (data_in == 8'h68) nextState = H;
                         else nextState = NULL;
-                    end else if (cnt == cnt_max) nextState = NULL;
+                    end else if (cnt > cnt_max) nextState = NULL;
                         else nextState = currentState;
                         
             HITS:   if (valid) begin
                         if (data_in == 8'h7a) nextState = HITSZ;
+                        else if (data_in == 8'h74) nextState = ST;
+                        else if (data_in == 8'h73) nextState = S;
+                        else if (data_in == 8'h68) nextState = H;
                         else nextState = NULL;                       
-                    end else if (cnt == cnt_max) nextState = NULL;
+                    end else if (cnt > cnt_max) nextState = NULL;
                         else nextState = currentState;
                         
             HITSZ: if (valid) begin
@@ -162,7 +181,7 @@ module strMatch (
     always @(posedge clk or posedge rst) begin
         if (rst) begin
             noMatch <= 0;
-        end else if (cnt == cnt_max && currentState == NULL && isMatched == 0) begin
+        end else if (cnt > cnt_max && currentState == NULL && isMatched == 0) begin
             noMatch <= 1;
         end else begin
             noMatch <= 0;
@@ -172,7 +191,7 @@ module strMatch (
     always @(posedge clk or posedge rst) begin
         if(rst) begin
             match <= 0;
-        end else if (valid &&(nextState == START || nextState == STOP || nextState == HITSZ)) begin
+        end else if (cnt == 1 && (currentState == START || currentState == STOP || currentState == HITSZ)) begin
             match <= 1;
         end else if (noMatch) begin
             match <= 1;
@@ -185,7 +204,7 @@ module strMatch (
         if(rst) begin
             matchResult <= 8'h30;
         end else begin
-            case (nextState)
+            case (currentState)
                 START: matchResult <= 8'h31;
                 STOP: matchResult <= 8'h32;
                 HITSZ: matchResult <= 8'h33;
