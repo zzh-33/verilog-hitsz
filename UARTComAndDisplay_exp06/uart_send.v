@@ -49,13 +49,11 @@ module uart_send(
         end
     end
 
-    // 第1个always块，描述次态迁移到现态
     always @(posedge clk or posedge rst) begin
         if(rst)  current_state <= IDLE;
         else current_state <= next_state;
     end
 
-    // 第2个always块，描述状态转移条件判断
     always @(*) begin
         case (current_state)
             IDLE:   if(baud_cnt_inc) next_state = START;
@@ -70,7 +68,6 @@ module uart_send(
         endcase
     end
 
-    // 第3个always块，描述输出逻辑，也可以用next_state作判断，对时序不敏感的电路两者都可以。
     always @(posedge clk or posedge rst) begin
         if(rst) dout <= 1;
         else begin

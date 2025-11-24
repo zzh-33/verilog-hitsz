@@ -181,7 +181,9 @@ module strMatch (
     always @(posedge clk or posedge rst) begin
         if (rst) begin
             noMatch <= 0;
-        end else if (cnt > cnt_max && currentState == NULL && isMatched == 0) begin
+        end else if (cnt > cnt_max 
+        && currentState == NULL 
+        && isMatched == 0) begin
             noMatch <= 1;
         end else begin
             noMatch <= 0;
@@ -191,7 +193,10 @@ module strMatch (
     always @(posedge clk or posedge rst) begin
         if(rst) begin
             match <= 0;
-        end else if (cnt == 1 && (currentState == START || currentState == STOP || currentState == HITSZ)) begin
+        end else if (cnt == 1 && 
+        (currentState == START || 
+        currentState == STOP || 
+        currentState == HITSZ)) begin
             match <= 1;
         end else if (noMatch) begin
             match <= 1;
